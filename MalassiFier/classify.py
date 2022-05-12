@@ -1,10 +1,6 @@
 #!env python
-import os
-import os.path
 import argparse
 from tkinter import filedialog, Tk
-
-import numpy as np
 
 
 def glob_it(directory: str):
