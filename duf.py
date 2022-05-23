@@ -22,7 +22,7 @@ print(image.shape)
 plt.imshow(image)
 #plt.show()
 
-image_paths = ['dataset/female_cmp_8.jpg', 'dataset/female_cmp_1.jpg']
+image_paths = ['dataset/female_cmp_1.jpg']
 fig = plt.figure(figsize=(9, 9))
 for image_path in image_paths:
     img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -36,12 +36,17 @@ for image_path in image_paths:
     #fig.add_subplot(4, 4, 2)
     #plt.imshow(blr)
 
-    the = cv2.adaptiveThreshold(blr, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 5, 30)
+    the = cv2.adaptiveThreshold(blr, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 30)
     #print(the)
     #fig.add_subplot(4, 4, 3)
     plt.imshow(the)
+RESIZE = (500, 700)
+
+thresh = cv2.resize(the, RESIZE, the)
 plt.imshow(the)
 plt.show()
+cv2.imshow('so', thresh)
+cv2.waitKey(0)
 # cv2.imshow('', img)
 # cv2.waitKey(1)
 # while True:
