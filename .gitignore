@@ -1,6 +1,11 @@
 # MalassiFier's
 papers
 dataset
+input
+cmp23
+features
+preprocessed
+project_submission
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
