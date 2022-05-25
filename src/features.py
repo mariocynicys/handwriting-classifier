@@ -1,17 +1,17 @@
 from utils import imread_bw, imread
 
 import cv2
+import sys
 import math
 import numpy as np
 from skimage.feature import graycomatrix, graycoprops, local_binary_pattern, hog as skimghog
 
 
-def glcm(image_path: str):
+def glcm(image):
     props = ['contrast', 'homogeneity', 'energy', 'correlation', 'entropy']
     angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4]
     distances = [1]
     features = []
-    image = imread_bw(image_path)
     glcm = graycomatrix(image, distances=distances,
                         angles=angles, levels=2,
                         symmetric=False, normed=True)
@@ -25,14 +25,13 @@ def glcm(image_path: str):
             features.append(graycoprops(glcm, prop).ravel())
     return np.hstack(features)
 
-def ojalat_lbp(image_path: str, n_points=16, radius=2):
-    image = imread_bw(image_path)
+def lbp(image, n_points=16, radius=2):
     lbp = local_binary_pattern(image, n_points, radius, method='nri_uniform')
     # [n * (n - 1) + 2] for uniform bp and [1] more bin for non uniform bp.
     n_bins = n_points * (n_points - 1) + 2 + 1
     return np.histogram(lbp.ravel(), bins=np.arange(n_bins + 1), density=True)[0]
 
-def hog(image_path: str, resize_factor: tuple, **kwargs):
+def hog(image, resize_factor: tuple, **kwargs):
     hog_kwargs = {
         'orientations': 9,
         'pixels_per_cell': (16, 16),
@@ -40,13 +39,11 @@ def hog(image_path: str, resize_factor: tuple, **kwargs):
         'transform_sqrt': False,
     }
     hog_kwargs.update(kwargs)
-    image = imread_bw(image_path).astype('float')
-    image = cv2.resize(image, resize_factor)
+    image = cv2.resize(image.astype('float'), resize_factor)
     features = skimghog(image, **hog_kwargs)
     return features.ravel() / np.sum(features)
 
-def freeman_cc_hists(image_path: str):
-    image = imread(image_path)
+def chain_codes_and_pairs(image):
     # Get the image contours.
     contours = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
     # A direction to index map.
@@ -73,8 +70,7 @@ def freeman_cc_hists(image_path: str):
     chain_code_pairs_hist = chain_code_pairs_hist.ravel() / np.sum(chain_code_pairs_hist)
     return np.append(chain_code_hist, chain_code_pairs_hist)
 
-def slopes_and_curves(image_path: str):
-    image = imread(image_path)
+def slopes_and_curves(image):
     # Get the image contours.
     contours = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)[0]
     def bound_angle(minimum: float, maximum: float):
@@ -110,11 +106,10 @@ def slopes_and_curves(image_path: str):
 
 # Credits for the following 2 features: https://github.com/Swati707/hinge_and_cold_feature_extraction
 
-def hinge(image_path, n_angles = 40, leg_len = 25):
+def hinge(image, n_angles = 40, leg_len = 25):
     bin_size = 360 // n_angles
     hist = np.zeros((n_angles, n_angles))
 
-    image = imread(image_path)
     contours = sorted(
         cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0],
         key=cv2.contourArea, reverse=True)[1:]
@@ -145,13 +140,12 @@ def hinge(image_path, n_angles = 40, leg_len = 25):
     hist /= np.sum(hist)
     return hist[np.triu_indices_from(hist, k=1)]
 
-def cold(image_path, approx_poly_factor=0.01, n_rho=7,
+def cold(image, approx_poly_factor=0.01, n_rho=7,
          n_angles=12, ks=np.arange(3, 8),
          r_inner=5.0, r_outer=35.0):
     bin_size = 360 // n_angles
     n_bins = n_rho * n_angles
 
-    image = imread(image_path)
     contours = sorted(
         cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0],
         key=cv2.contourArea, reverse=True)[1:]
@@ -162,10 +156,10 @@ def cold(image_path, approx_poly_factor=0.01, n_rho=7,
     for k in ks:
         hist = np.zeros((n_rho, n_angles))
         for contour in contours:
-            n_pixels = len(contour)
-
             epsilon = approx_poly_factor * cv2.arcLength(contour, True)
             contour = cv2.approxPolyDP(contour, epsilon, True)
+
+            n_pixels = len(contour)
 
             point_1s = np.array([point[0] for point in contour])
             x1s, y1s = point_1s[:, 0], point_1s[:, 1]
@@ -190,4 +184,6 @@ def cold(image_path, approx_poly_factor=0.01, n_rho=7,
     return feature_vectors.flatten()
 
 def run_feature_extraction(image, bw_image, feature):
-    pass
+    if feature in ['lbp', 'hog', 'glcm']:
+        image = bw_image
+    return sys.modules[__name__].__dict__[feature](image)
