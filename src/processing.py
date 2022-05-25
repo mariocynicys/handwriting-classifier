@@ -8,8 +8,8 @@ PREPROCESSING_DILATION_ITERATIONS = 8
 PREPROCESSING_DILATION_SIZE = (15, 20) # We need more dilation into the vertical axis.
 PREPROCESSING_THRESH_BLOCK_SIZE = 101 # 101 is quick enough, yet robust.
 PREPROCESSING_THRESH_C = 30 # Note that we need a big C subtractor when we use a big block size.
-X_CUT_PERCENT = 0.1 # Don't cut too much since some people write to edge of the paper.
-Y_CUT_PERCENT = 0.5 # 0.5% on both sides is enough.
+X_CUT_PERCENT = 0.5
+Y_CUT_PERCENT = 1
 
 
 def prune_useless_feature_cols(features):

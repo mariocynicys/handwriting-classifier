@@ -1,11 +1,12 @@
 # MalassiFier's
 papers
-dataset
 input
-cmp23
+male
+female
 features
-preprocessed
 project_submission
+tryvm.py
+zdum.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

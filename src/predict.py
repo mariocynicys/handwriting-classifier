@@ -7,7 +7,6 @@ import argparse
 
 from processing import *
 from features import *
-from helpers import *
 from utils import *
 
 
@@ -21,7 +20,7 @@ def main():
                       default='out')
   parser.add_argument('-c', '--classifier',
                       help='The path to the pickled classifier to use.',
-                      default='classifier')
+                      default='classifier.pkl')
   args = parser.parse_args()
 
   test_images = sorted(glob.glob(os.path.join(args.inputdir, '*.jpg')))
@@ -51,16 +50,6 @@ def main():
 
   with open(os.path.join(args.outputdir, 'times.txt'), 'w') as times_file:
     times_file.write('\n'.join(times))
-
-FEATURES = [
-  'lbp',
-  'hog',
-  'glcm',
-  'cold',
-  'hinge',
-  'slopes_and_curves',
-  'chain_codes_and_pairs',
-]
 
 if __name__ == '__main__':
   main()

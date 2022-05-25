@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from sklearn import svm
+from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
@@ -27,15 +27,18 @@ def svm_test(xs, ys, times=100, test_size=0.2, **kwargs):
     tr_ac, ts_ac, mal, fem = 0, 0, 0, 0
     for _ in range(times):
         X_train, X_test, y_train, y_test = train_test_split(xs, ys, test_size=test_size)
-        clf = svm.SVC(**kwargs)
+        clf = SVC(**kwargs)
         clf.fit(X_train, y_train)
         tr_ac += clf.score(X_train, y_train)
         ts_ac += clf.score(X_test, y_test)
         mal += np.sum(clf.predict(xs) == 1) / len(xs)
         fem += np.sum(clf.predict(xs) == 0) / len(xs)
-    ret = ts_ac * 100 / times, tr_ac * 100 / times, mal * 100 / times, fem * 100 / times
-    print('male_predict% = {}\nfemale_predict% = {}'.format(*ret[2:]))
-    return ret[:2]
+    print(f"""
+          male percentage = {mal * 100 / times:.2f}%
+          female percentage = {fem * 100 / times:.2f}%
+          train accuracy = {tr_ac * 100 / times:.2f}%
+          test accuracy = {ts_ac * 100 / times:.2f}%
+          """)
 
 def ann_test(xs, ys, times=100, test_size=0.2, **kwargs):
     mlp_kwargs = {
@@ -54,6 +57,9 @@ def ann_test(xs, ys, times=100, test_size=0.2, **kwargs):
         ts_ac += clf.score(X_test, y_test)
         mal += np.sum(clf.predict(xs) == 1) / len(xs)
         fem += np.sum(clf.predict(xs) == 0) / len(xs)
-    ret = ts_ac * 100 / times, tr_ac * 100 / times, mal * 100 / times, fem * 100 / times 
-    print('male_predict = {} %\nfemale_predict = {} %'.format(*ret[2:]))
-    return ret[:2]
+    print(f"""
+          male percentage = {mal * 100 / times:.2f}%
+          female percentage = {fem * 100 / times:.2f}%
+          train accuracy = {tr_ac * 100 / times:.2f}%
+          test accuracy = {ts_ac * 100 / times:.2f}%
+          """)

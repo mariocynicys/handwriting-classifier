@@ -1,11 +1,19 @@
-from utils import imread_bw, imread
-
 import cv2
 import sys
 import math
 import numpy as np
 from skimage.feature import graycomatrix, graycoprops, local_binary_pattern, hog as skimghog
 
+
+FEATURES = [
+  'lbp',
+  #'hog',
+  'glcm',
+  #'cold',
+  'hinge',
+  'slopes_and_curves',
+  'chain_codes_and_pairs',
+]
 
 def glcm(image):
     props = ['contrast', 'homogeneity', 'energy', 'correlation', 'entropy']
@@ -31,7 +39,7 @@ def lbp(image, n_points=16, radius=2):
     n_bins = n_points * (n_points - 1) + 2 + 1
     return np.histogram(lbp.ravel(), bins=np.arange(n_bins + 1), density=True)[0]
 
-def hog(image, resize_factor: tuple, **kwargs):
+def hog(image, resize_factor=(2289, 1600), **kwargs):
     hog_kwargs = {
         'orientations': 9,
         'pixels_per_cell': (16, 16),
@@ -106,13 +114,13 @@ def slopes_and_curves(image):
 
 # Credits for the following 2 features: https://github.com/Swati707/hinge_and_cold_feature_extraction
 
-def hinge(image, n_angles = 40, leg_len = 25):
+def hinge(image, n_angles=12, leg_len=25):
     bin_size = 360 // n_angles
     hist = np.zeros((n_angles, n_angles))
 
     contours = sorted(
         cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0],
-        key=cv2.contourArea, reverse=True)[1:]
+        key=cv2.contourArea, reverse=True)
 
     for contour in contours:
         n_pixels = len(contour)
@@ -141,14 +149,14 @@ def hinge(image, n_angles = 40, leg_len = 25):
     return hist[np.triu_indices_from(hist, k=1)]
 
 def cold(image, approx_poly_factor=0.01, n_rho=7,
-         n_angles=12, ks=np.arange(3, 8),
+         n_angles=12, ks=np.arange(3, 8), max_cnts=1000,
          r_inner=5.0, r_outer=35.0):
     bin_size = 360 // n_angles
     n_bins = n_rho * n_angles
 
-    contours = sorted(
-        cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0],
-        key=cv2.contourArea, reverse=True)[1:]
+    contours = list(cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
+    np.random.shuffle(contours)
+    contours = contours[:max_cnts]
 
     rho_bins_edges = np.log10(np.linspace(r_inner, r_outer, n_rho))
     feature_vectors = np.zeros((len(ks), n_bins))
