@@ -5,7 +5,7 @@ import numpy as np
 from skimage.feature import graycomatrix, graycoprops, local_binary_pattern, hog as skimghog
 
 
-FEATURES = [
+FEATURES = {
   'lbp',
   #'hog',
   'glcm',
@@ -13,7 +13,7 @@ FEATURES = [
   'hinge',
   'slopes_and_curves',
   'chain_codes_and_pairs',
-]
+}
 
 def glcm(image):
     props = ['contrast', 'homogeneity', 'energy', 'correlation', 'entropy']

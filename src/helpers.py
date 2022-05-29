@@ -1,9 +1,9 @@
+#from model import ANN, RF, SVM
+from utils import split, loading
+
 import cv2
 import numpy as np
-from sklearn.svm import SVC
 import matplotlib.pyplot as plt
-from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split
 
 
 def preview(images: list):
@@ -23,43 +23,29 @@ def plt_test(xs, ys):
         plt.plot(females[:, f1], ys[ys[:,0] == 0], 'rx')
         plt.show()
 
-def svm_test(xs, ys, times=100, test_size=0.2, **kwargs):
+def c_test(xs, ys, clf, count=100, test_size=0.2):
     tr_ac, ts_ac, mal, fem = 0, 0, 0, 0
-    for _ in range(times):
-        X_train, X_test, y_train, y_test = train_test_split(xs, ys, test_size=test_size)
-        clf = SVC(**kwargs)
+    loading(0, count)
+    for i in range(count):
+        X_train, X_test, y_train, y_test = split(xs, ys, test_size)
         clf.fit(X_train, y_train)
         tr_ac += clf.score(X_train, y_train)
         ts_ac += clf.score(X_test, y_test)
         mal += np.sum(clf.predict(xs) == 1) / len(xs)
         fem += np.sum(clf.predict(xs) == 0) / len(xs)
+        loading(i + 1, count)
     print(f"""
-          male percentage = {mal * 100 / times:.2f}%
-          female percentage = {fem * 100 / times:.2f}%
-          train accuracy = {tr_ac * 100 / times:.2f}%
-          test accuracy = {ts_ac * 100 / times:.2f}%
+          male percentage = {mal * 100 / count:.2f}%
+          female percentage = {fem * 100 / count:.2f}%
+          train accuracy = {tr_ac * 100 / count:.2f}%
+          test accuracy = {ts_ac * 100 / count:.2f}%
           """)
 
-def ann_test(xs, ys, times=100, test_size=0.2, **kwargs):
-    mlp_kwargs = {
-        'solver': 'lbfgs',
-        'hidden_layer_sizes': (5, 2),
-        'activation': 'identity',
-        'max_iter': 10000,
-    }
-    mlp_kwargs.update(kwargs)
-    tr_ac, ts_ac, mal, fem = 0, 0, 0, 0
-    for _ in range(times):
-        X_train, X_test, y_train, y_test = train_test_split(xs, ys, test_size=test_size)
-        clf = MLPClassifier(**kwargs)
-        clf.fit(X_train, y_train)
-        tr_ac += clf.score(X_train, y_train)
-        ts_ac += clf.score(X_test, y_test)
-        mal += np.sum(clf.predict(xs) == 1) / len(xs)
-        fem += np.sum(clf.predict(xs) == 0) / len(xs)
-    print(f"""
-          male percentage = {mal * 100 / times:.2f}%
-          female percentage = {fem * 100 / times:.2f}%
-          train accuracy = {tr_ac * 100 / times:.2f}%
-          test accuracy = {ts_ac * 100 / times:.2f}%
-          """)
+# def svm_test(xs, ys, count=100, test_size=0.2, **kwargs):
+#     return c_test(xs, ys, SVM(**kwargs), count, test_size)
+
+# def ann_test(xs, ys, count=100, test_size=0.2, **kwargs):
+#     return c_test(xs, ys, ANN(**kwargs), count, test_size)
+
+# def rfc_test(xs, ys, count=100, test_size=0.2, **kwargs):
+#     return c_test(xs, ys, RF(**kwargs), count, test_size)

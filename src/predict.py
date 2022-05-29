@@ -21,7 +21,12 @@ def main():
   parser.add_argument('-c', '--classifier',
                       help='The path to the pickled classifier to use.',
                       default='classifier.pkl')
+  parser.add_argument('-x', '--exclude-feature',
+                      help='Skips the feature extraction for the given feature.',
+                      action='append', default=[])
   args = parser.parse_args()
+
+  FEATURES = FEATURES.difference(args.exclude_feature)
 
   test_images = sorted(glob.glob(os.path.join(args.inputdir, '*.jpg')))
 

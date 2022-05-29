@@ -5,7 +5,16 @@ import cv2
 import glob
 import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
 
+
+def hint(*args, **kwargs):
+    """Just like print(), but its output is erased with the next hint()/print() call."""
+    print(*args, **kwargs, end=1000 * ' ' + '\r')
+
+def loading(done: int, outof: int, loading_char='*'):
+    percentage = done / outof * 100
+    hint(int(percentage) * loading_char, f'[{percentage:.2f}%]')
 
 def cmp(gender: str, id: int):
     return os.path.join('cmp23', gender, f'{id:03}.jpg')
@@ -60,6 +69,9 @@ def combine_features(*features):
     for feature in features[1:]:
         all_features = np.append(feature, all_features, axis=1)
     return all_features
+
+def split(xs, ys, test_size=0.2):
+    return train_test_split(xs, ys, test_size=test_size)
 
 _ALL_IMAGES = sorted(glob.glob('cmp23/*/*.jpg'))
 _LABELS = np.array([gender(image_path) for image_path in _ALL_IMAGES])
