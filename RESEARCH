@@ -1,7 +1,7 @@
 Features:
   Textural:
-    - LBP (73%)
-    - GLCM (66%)
+    - LBP (74%)
+    - GLCM (67%)
     - Gabor Filter (canceled)
     - AR Coefficients (canceled)
   Slant/Curvature:
@@ -10,8 +10,8 @@ Features:
       - Distribution of Chain Codes
       - Distribution of Chain Code Pairs
     - Distribution of Segment Slopes & Curvatures (66%)
-    - COLD (60%)
-    - Hinge (80%)
+    - COLD (62%)
+    - Hinge (81%)
     - oBIF (canceled)
   Fractal (canceled):
     - SFTA
