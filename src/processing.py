@@ -13,13 +13,14 @@ Y_CUT_PERCENT = 1
 
 
 def prune_useless_feature_cols(features):
-    zero_cols = features[0] == features[1]
+    same_cols = features[0] == features[1]
     for feature_vec in features:
-        zero_cols &= features[0] == feature_vec
-    print(f'The following {np.sum(zero_cols)} features were removed because they are not discriminative:')
-    features_to_remove = np.where(zero_cols, [x + 1 for x in range(len(zero_cols))], -1)
-    print(features_to_remove[features_to_remove != -1])
-    return features[:, ~zero_cols]
+        same_cols &= features[0] == feature_vec
+    if np.any(same_cols):
+        print(f'The following {np.sum(same_cols)} features were removed because they are not discriminative:')
+        features_to_remove = np.where(same_cols, [x + 1 for x in range(len(same_cols))], -1)
+        print(features_to_remove[features_to_remove != -1])
+    return features[:, ~same_cols]
 
 def norm(features):
     features = prune_useless_feature_cols(np.array(features))
