@@ -10,17 +10,17 @@ from sklearn.model_selection import train_test_split
 
 def hint(*args, **kwargs):
     """Just like print(), but its output is erased with the next hint()/print() call."""
-    print(*args, **kwargs, end=1000 * ' ' + '\r')
+    print(*args, **kwargs, end=100 * ' ' + '\r')
 
 def loading(done: int, outof: int, loading_char='*'):
     percentage = done / outof * 100
     hint(int(percentage) * loading_char, f'[{percentage:.2f}%]')
 
 def cmp(gender: str, id: int):
-    return os.path.join('cmp23', gender, f'{id:03}.jpg')
+    return os.path.join('cmp23', gender + 's', f'{id:03}.jpg')
 
 def gender(path: str):
-    return 1 if 'female' not in path else 0
+    return 1 if 'females' not in path else 0
 
 def pre(image_path: str):
     image_path = os.path.relpath(image_path, 'cmp23')

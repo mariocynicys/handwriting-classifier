@@ -1,4 +1,3 @@
-#from model import ANN, RF, SVM
 from utils import split, loading
 
 import cv2
@@ -23,7 +22,7 @@ def plt_test(xs, ys):
         plt.plot(females[:, f1], ys[ys[:,0] == 0], 'rx')
         plt.show()
 
-def c_test(xs, ys, clf, count=100, test_size=0.2):
+def g_test(xs, ys, clf, count=100, test_size=0.2, log=True):
     tr_ac, ts_ac, mal, fem = 0, 0, 0, 0
     loading(0, count)
     for i in range(count):
@@ -34,18 +33,11 @@ def c_test(xs, ys, clf, count=100, test_size=0.2):
         mal += np.sum(clf.predict(xs) == 1) / len(xs)
         fem += np.sum(clf.predict(xs) == 0) / len(xs)
         loading(i + 1, count)
-    print(f"""
-          male percentage = {mal * 100 / count:.2f}%
-          female percentage = {fem * 100 / count:.2f}%
-          train accuracy = {tr_ac * 100 / count:.2f}%
-          test accuracy = {ts_ac * 100 / count:.2f}%
-          """)
-
-# def svm_test(xs, ys, count=100, test_size=0.2, **kwargs):
-#     return c_test(xs, ys, SVM(**kwargs), count, test_size)
-
-# def ann_test(xs, ys, count=100, test_size=0.2, **kwargs):
-#     return c_test(xs, ys, ANN(**kwargs), count, test_size)
-
-# def rfc_test(xs, ys, count=100, test_size=0.2, **kwargs):
-#     return c_test(xs, ys, RF(**kwargs), count, test_size)
+    if log:
+        print(f"""
+              male percentage = {mal * 100 / count:.2f}%
+              female percentage = {fem * 100 / count:.2f}%
+              train accuracy = {tr_ac * 100 / count:.2f}%
+              test accuracy = {ts_ac * 100 / count:.2f}%
+              """)
+    return ts_ac * 100 / count

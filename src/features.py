@@ -7,9 +7,9 @@ from skimage.feature import graycomatrix, graycoprops, local_binary_pattern, hog
 
 FEATURES = {
   'lbp',
-  #'hog',
+  'hog',
   'glcm',
-  #'cold',
+  'cold',
   'hinge',
   'slopes_and_curves',
   'chain_codes_and_pairs',
@@ -192,6 +192,7 @@ def cold(image, approx_poly_factor=0.01, n_rho=7,
     return feature_vectors.flatten()
 
 def run_feature_extraction(image, bw_image, feature):
+    assert feature in FEATURES, f"Unknown feature {feature}!"
     if feature in ['lbp', 'hog', 'glcm']:
         image = bw_image
     return sys.modules[__name__].__dict__[feature](image)

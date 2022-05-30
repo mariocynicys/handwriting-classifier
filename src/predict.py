@@ -5,9 +5,10 @@ import time
 import pickle
 import argparse
 
+from utils import *
 from processing import *
 from features import *
-from utils import *
+from model import *
 
 
 def main():
@@ -20,18 +21,21 @@ def main():
                       default='out')
   parser.add_argument('-c', '--classifier',
                       help='The path to the pickled classifier to use.',
-                      default='classifier.pkl')
+                      default='gender_classifier.pkl')
   parser.add_argument('-x', '--exclude-feature',
                       help='Skips the feature extraction for the given feature.',
                       action='append', default=[])
   args = parser.parse_args()
 
-  FEATURES = FEATURES.difference(args.exclude_feature)
-
   test_images = sorted(glob.glob(os.path.join(args.inputdir, '*.jpg')))
 
-  with open(args.classifier, 'rb') as clf_file:
-    clf = pickle.load(clf_file)
+  selected_features = FEATURES.difference(args.exclude_feature)
+
+  try:
+    with open(args.classifier, 'rb') as clf_file:
+      clf = pickle.load(clf_file)
+  except Exception as e:
+    print(f"Couldn't unpickle the classifier {args.classifier}\nError: {e}")
 
   results = []
   times = []
@@ -42,9 +46,9 @@ def main():
       image = preprocess(test_image)
       bw_image = binarize(image)
       features = {}
-      for feature in FEATURES:
+      for feature in selected_features:
         features[feature] = run_feature_extraction(image, bw_image, feature)
-      results.append(str(clf.predict(features)))
+      results.append(str(round(clf.predict(features))))
     except Exception as e:
       print(e)
       results.append('-1')
