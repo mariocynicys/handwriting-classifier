@@ -1,18 +1,23 @@
+from sklearn.preprocessing import StandardScaler
+from utils import load_feature, meta
+
 import cv2
 import sys
 import math
+import pickle
 import numpy as np
-from skimage.feature import graycomatrix, graycoprops, local_binary_pattern, hog as skimghog
+from skimage.feature import (graycomatrix, graycoprops,
+                             local_binary_pattern, hog as skimghog)
 
 
 FEATURES = {
-  'lbp',
-  'hog',
-  'glcm',
-  'cold',
+  #'lbp',
+  #'hog',
+  #'glcm',
+  #'cold',
   'hinge',
-  'slopes_and_curves',
-  'chain_codes_and_pairs',
+  #'slopes_and_curves',
+  #'chain_codes_and_pairs',
 }
 
 def glcm(image):
@@ -114,7 +119,7 @@ def slopes_and_curves(image):
 
 # Credits for the following 2 features: https://github.com/Swati707/hinge_and_cold_feature_extraction
 
-def hinge(image, n_angles=12, leg_len=25):
+def hinge(image, n_angles=40, leg_len=40):
     bin_size = 360 // n_angles
     hist = np.zeros((n_angles, n_angles))
 
@@ -195,4 +200,8 @@ def run_feature_extraction(image, bw_image, feature):
     assert feature in FEATURES, f"Unknown feature {feature}!"
     if feature in ['lbp', 'hog', 'glcm']:
         image = bw_image
-    return sys.modules[__name__].__dict__[feature](image)
+    nonscaled_features = sys.modules[__name__].__dict__[feature](image)
+    scaler = pickle.load(open(meta(feature, 'scaler'), 'rb'))
+    cols_to_keep = np.loadtxt(meta(feature, 'cols_to_keep')).astype(bool)
+    nonscaled_features = nonscaled_features[cols_to_keep]
+    return scaler.transform([nonscaled_features])[0]

@@ -3,6 +3,7 @@ from processing import norm
 import os
 import cv2
 import glob
+import pickle
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
@@ -12,9 +13,10 @@ def hint(*args, **kwargs):
     """Just like print(), but its output is erased with the next hint()/print() call."""
     print(*args, **kwargs, end=100 * ' ' + '\r')
 
-def loading(done: int, outof: int, loading_char='*'):
+def loading(done: int, outof: int, loading_char='█'):
     percentage = done / outof * 100
-    hint(int(percentage) * loading_char, f'[{percentage:.2f}%]')
+    filled, left = int(percentage), 100 - int(percentage)
+    hint(f"|{filled * loading_char}{left * ' '}| [{percentage:.2f}%]")
 
 def cmp(gender: str, id: int):
     return os.path.join('cmp23', gender + 's', f'{id:03}.jpg')
@@ -28,6 +30,9 @@ def pre(image_path: str):
 
 def feat(feature: str):
     return os.path.join('features', feature + '.ft')
+
+def meta(feature: str, meta_info: str):
+    return os.path.join('meta', f'{feature}-{meta_info}.inf')
 
 def imread(image_path: str):
     return cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -59,7 +64,10 @@ def load_feature(feature_name: str):
     return np.loadtxt(feat(feature_name))
 
 def save_feature(feature_name: str, features):
-    np.savetxt(feat(feature_name), norm(features))
+    features, cols_to_keep, scaler = norm(features)
+    np.savetxt(feat(feature_name), features)
+    np.savetxt(meta(feature_name, 'cols_to_keep'), cols_to_keep)
+    pickle.dump(scaler, open(meta(feature_name, 'scaler'), 'wb'))
 
 def pca(xs):
     return PCA().fit_transform(xs)

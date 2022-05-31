@@ -1,9 +1,12 @@
 # MalassiFier's
 papers
+*-report.pdf
 input
 *male*
 features
 project_submission
+out
+test
 tryvm.py
 zdum.py
 

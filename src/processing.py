@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import StandardScaler
 
 
 PREPROCESSING_GAUSSIAN_BLUR_KERNEL_SIZE = (9, 9)
@@ -20,15 +20,15 @@ def prune_useless_feature_cols(features):
         print(f'The following {np.sum(same_cols)} features were removed because they are not discriminative:')
         features_to_remove = np.where(same_cols, [x + 1 for x in range(len(same_cols))], -1)
         print(features_to_remove[features_to_remove != -1])
-    return features[:, ~same_cols]
+    return features[:, ~same_cols], ~same_cols
 
 def norm(features):
-    features = prune_useless_feature_cols(np.array(features))
-    features = normalize(features, axis=0)
-    return features
+    features, cols_to_keep = prune_useless_feature_cols(np.array(features))
+    scaler = StandardScaler()
+    scaler.fit(features)
+    return scaler.transform(features), cols_to_keep, scaler
 
-def preprocess(image_path: str):
-    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+def preprocess(image):
     # Cut some percentage of the images' edges. They are usually noisy.
     height, width = image.shape
     if X_CUT_PERCENT:

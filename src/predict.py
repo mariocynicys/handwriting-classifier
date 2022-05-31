@@ -8,7 +8,6 @@ import argparse
 from utils import *
 from processing import *
 from features import *
-from model import *
 
 
 def main():
@@ -21,15 +20,10 @@ def main():
                       default='out')
   parser.add_argument('-c', '--classifier',
                       help='The path to the pickled classifier to use.',
-                      default='gender_classifier.pkl')
-  parser.add_argument('-x', '--exclude-feature',
-                      help='Skips the feature extraction for the given feature.',
-                      action='append', default=[])
+                      default='hinge_clf.pkl')
   args = parser.parse_args()
 
   test_images = sorted(glob.glob(os.path.join(args.inputdir, '*.jpg')))
-
-  selected_features = FEATURES.difference(args.exclude_feature)
 
   try:
     with open(args.classifier, 'rb') as clf_file:
@@ -41,14 +35,17 @@ def main():
   times = []
 
   for test_image in test_images:
+    image = imread(test_image)
+    # cv2.imshow('f', image)
+    # cv2.waitKey(0)
     start_time = time.time()
     try:
-      image = preprocess(test_image)
-      bw_image = binarize(image)
-      features = {}
-      for feature in selected_features:
-        features[feature] = run_feature_extraction(image, bw_image, feature)
-      results.append(str(round(clf.predict(features))))
+      assert image is not None, f"{test_image} couldn't be read."
+      imwrite('f.jpg', preprocess(image))
+      features = hinge(imread('f.jpg'))
+      prediction = clf.predict([features])[0]
+      print(prediction)
+      results.append(str(round(prediction)))
     except Exception as e:
       print(e)
       results.append('-1')

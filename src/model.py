@@ -2,6 +2,7 @@ from helpers import g_test
 
 import sys
 import pickle
+from copy import deepcopy
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
@@ -80,8 +81,7 @@ class GenderClassifier:
                 features_estimators[feature_name][estimator_name] = (
                     g_test(feature, ys, estimator_generator(), log=False))
                 log = f"Accuracy: {features_estimators[feature_name][estimator_name]:.2f}%"
-                print(f"\n{log}",
-                      len(log) * '-', sep='\n')
+                print(f"\n{log}", len(log) * '-', sep='\n')
             print(len(log) * '-')
         # Assign each feature an estimator.
         best_feature_estimators_info = {}
@@ -101,12 +101,13 @@ class GenderClassifier:
             self.estimators[feature_name] = (estimator, estimator_accuracy ** booster)
 
     def predict(self, features: dict, use_probs=False) -> float:
-        assert all(feature_name in self.estimators.keys()
-                   for feature_name in features.keys()), f"Encountered an unknown feature!"
+        assert features, "No features given!"
         # Get the prediction and contribution of each estimator using the given features.
         predictions = []
         contributions = []
         for feature_name, feature in features.items():
+            if feature_name not in self.estimators.keys():
+                continue
             if use_probs:
                 try:
                     prediction = self.estimators[feature_name][0].predict_proba([feature])[0][1]
@@ -140,4 +141,7 @@ class GenderClassifier:
 
     def pickle(self, file_name='gender_classifier.pkl'):
         with open(file_name, 'wb') as clf_file:
-            pickle.dump(self, clf_file)
+            self_copy = deepcopy(self)
+            # Get rid of the estimator generators as they can't be pickled.
+            self_copy.estimator_generators = []
+            pickle.dump(self_copy, clf_file)
