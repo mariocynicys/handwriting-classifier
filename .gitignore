@@ -3,6 +3,8 @@ papers
 *-report.pdf
 input
 *male*
+# PCA pickles are ridiculously huge.
+*pca.inf
 features
 project_submission
 out

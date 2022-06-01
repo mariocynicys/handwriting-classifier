@@ -123,9 +123,7 @@ def hinge(image, n_angles=40, leg_len=25):
     bin_size = 360 // n_angles
     hist = np.zeros((n_angles, n_angles))
 
-    contours = sorted(
-        cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0],
-        key=cv2.contourArea, reverse=True)
+    contours = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
 
     for contour in contours:
         n_pixels = len(contour)
@@ -153,13 +151,13 @@ def hinge(image, n_angles=40, leg_len=25):
     hist /= np.sum(hist)
     return hist[np.triu_indices_from(hist, k=1)]
 
-def cold(image, approx_poly_factor=0.01, n_rho=7,
-         n_angles=12, ks=np.arange(3, 8),
-         r_inner=5.0, r_outer=35.0):
+def cold(image, approx_poly_factor=0.1, n_rho=15,
+         n_angles=20, ks=np.arange(1, 8),
+         r_inner=5, r_outer=35):
     bin_size = 360 // n_angles
     n_bins = n_rho * n_angles
 
-    contours = list(cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
+    contours = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0]
 
     rho_bins_edges = np.log10(np.linspace(r_inner, r_outer, n_rho))
     feature_vectors = np.zeros((len(ks), n_bins))
@@ -191,7 +189,7 @@ def cold(image, approx_poly_factor=0.01, n_rho=7,
                 hist[r_bin - 1, theta_bin] += 1
 
         hist /= hist.sum()
-        feature_vectors[k-ks[0]] = hist.flatten()
+        feature_vectors[k - ks[0]] = hist.flatten()
     return feature_vectors.flatten()
 
 def run_feature_extraction(image, feature):

@@ -45,15 +45,6 @@ def dtc(**kwargs):
 def rfc(**kwargs):
     return RandomForestClassifier(**kwargs)
 
-class BAG(BaggingClassifier):
-    pass
-
-class STK(StackingClassifier):
-    pass
-
-class VOT(VotingClassifier):
-    pass
-
 class GenderClassifier:
     def __init__(self, estimators: dict):
         """`estimators` is a map of classifier name to any wanted **kwargs to be used

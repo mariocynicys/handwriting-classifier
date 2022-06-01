@@ -17,7 +17,7 @@ def prune_useless_feature_cols(features):
     for feature_vec in features:
         same_cols &= features[0] == feature_vec
     if np.any(same_cols):
-        print(f'The following {np.sum(same_cols)} features were removed because they are not discriminative:')
+        print(f'The following {np.sum(same_cols)} features (out of {features.shape[1]}) were removed because they are not discriminative:')
         features_to_remove = np.where(same_cols, [x + 1 for x in range(len(same_cols))], -1)
         print(features_to_remove[features_to_remove != -1])
     return features[:, ~same_cols], ~same_cols
