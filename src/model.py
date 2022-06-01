@@ -81,7 +81,7 @@ class GenderClassifier:
                 features_estimators[feature_name][estimator_name] = (
                     g_test(feature, ys, estimator_generator(), log=False))
                 log = f"Accuracy: {features_estimators[feature_name][estimator_name]:.2f}%"
-                print(f"\n{log}", len(log) * '-', sep='\n')
+                print(f"\n{log}\n", len(log) * '-')
             print(len(log) * '-')
         # Assign each feature an estimator.
         best_feature_estimators_info = {}
@@ -107,6 +107,7 @@ class GenderClassifier:
         contributions = []
         for feature_name, feature in features.items():
             if feature_name not in self.estimators.keys():
+                print(f"The model wasn't trained on feature {feature_name}!")
                 continue
             if use_probs:
                 try:

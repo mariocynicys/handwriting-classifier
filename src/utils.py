@@ -34,8 +34,11 @@ def feat(feature: str):
 def meta(feature: str, meta_info: str):
     return os.path.join('meta', f'{feature}-{meta_info}.inf')
 
-def imread(image_path: str):
-    return cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+def imread(image_path: str, apply_tresh=True):
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    if apply_tresh:
+        image = cv2.threshold(image, 255 / 2, 255, cv2.THRESH_BINARY)[1]
+    return image
 
 def imwrite(image_path: str, image):
     cv2.imwrite(image_path, image)
@@ -43,7 +46,7 @@ def imwrite(image_path: str, image):
 def binarize(image):
     return np.where(image > 255 / 2, 1, 0)
 
-def imread_bw(image_path: str):
+def imread_np(image_path: str):
     return binarize(imread(image_path))
 
 def get_all_images():

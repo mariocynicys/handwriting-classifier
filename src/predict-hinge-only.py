@@ -8,7 +8,6 @@ import argparse
 from utils import *
 from processing import *
 from features import *
-from model import *
 
 
 def main():
@@ -21,15 +20,10 @@ def main():
                       default='out')
   parser.add_argument('-c', '--classifier',
                       help='The path to the pickled classifier to use.',
-                      default='gender_classifier.pkl')
-  parser.add_argument('-x', '--exclude-feature',
-                      help='Skips the feature extraction for the given feature.',
-                      action='append', default=[])
+                      default='hinge_clf.pkl')
   args = parser.parse_args()
 
   test_images = sorted(glob.glob(os.path.join(args.inputdir, '*.jpg')))
-
-  selected_features = FEATURES.difference(args.exclude_feature)
 
   try:
     with open(args.classifier, 'rb') as clf_file:
@@ -37,19 +31,19 @@ def main():
   except Exception as e:
     print(f"Couldn't unpickle the classifier {args.classifier}\nError: {e}")
 
+  scaler = pickle.load(open('meta/hinge-scaler.inf', 'rb'))
   results = []
   times = []
 
   for test_image in test_images:
-    image = imread(test_image, apply_tresh=False)
+    image = imread(test_image)
     start_time = time.time()
     try:
       assert image is not None, f"{test_image} couldn't be read."
-      image = preprocess(image)
-      features = {}
-      for feature in selected_features:
-        features[feature] = run_feature_extraction(image, feature)
-      prediction = clf.predict(features, True)
+      features = hinge(preprocess(image))
+      features = scaler.transform([features])[0]
+      prediction = clf.predict([features])[0]
+      print(prediction)
       results.append(str(round(prediction)))
     except Exception as e:
       print(e)

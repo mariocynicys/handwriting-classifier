@@ -1,5 +1,5 @@
-from sklearn.preprocessing import StandardScaler
-from utils import load_feature, meta
+import os
+from utils import binarize, meta
 
 import cv2
 import sys
@@ -11,18 +11,18 @@ from skimage.feature import (graycomatrix, graycoprops,
 
 
 FEATURES = {
-  #'lbp',
-  #'hog',
-  #'glcm',
-  #'cold',
+  'lbp',
+  'hog',
+  'glcm',
+  'cold',
   'hinge',
-  #'slopes_and_curves',
-  #'chain_codes_and_pairs',
+  'slopes_and_curves',
+  'chain_codes_and_pairs',
 }
 
 def glcm(image):
     props = ['contrast', 'homogeneity', 'energy', 'correlation', 'entropy']
-    angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4]
+    angles = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4]
     distances = [1]
     features = []
     glcm = graycomatrix(image, distances=distances,
@@ -119,7 +119,7 @@ def slopes_and_curves(image):
 
 # Credits for the following 2 features: https://github.com/Swati707/hinge_and_cold_feature_extraction
 
-def hinge(image, n_angles=40, leg_len=40):
+def hinge(image, n_angles=40, leg_len=25):
     bin_size = 360 // n_angles
     hist = np.zeros((n_angles, n_angles))
 
@@ -196,12 +196,18 @@ def cold(image, approx_poly_factor=0.01, n_rho=7,
         feature_vectors[k-ks[0]] = hist.flatten()
     return feature_vectors.flatten()
 
-def run_feature_extraction(image, bw_image, feature):
+def run_feature_extraction(image, feature):
     assert feature in FEATURES, f"Unknown feature {feature}!"
     if feature in ['lbp', 'hog', 'glcm']:
-        image = bw_image
+        image = binarize(image)
     nonscaled_features = sys.modules[__name__].__dict__[feature](image)
+    assert (os.path.exists(meta(feature, 'scaler'))
+            and os.path.exists(meta(feature, 'cols_to_keep'))), "Assure that scalar"\
+                " and cols_to_keep data are present in the meta directory"\
+                    f" for the feature {feature}"
     scaler = pickle.load(open(meta(feature, 'scaler'), 'rb'))
     cols_to_keep = np.loadtxt(meta(feature, 'cols_to_keep')).astype(bool)
+    # Remove known useless feature columns.
     nonscaled_features = nonscaled_features[cols_to_keep]
+    # Apply normalization.
     return scaler.transform([nonscaled_features])[0]
