@@ -23,7 +23,7 @@ def plt_test(xs, ys):
         plt.show()
 
 def g_test(xs, ys, clf, count=100, test_size=0.2, log=True):
-    tr_ac, ts_ac, mal, fem = 0, 0, 0, 0
+    tr_ac, ts_ac, mal = 0, 0, 0
     loading(0, count)
     for i in range(count):
         X_train, X_test, y_train, y_test = split(xs, ys, test_size)
@@ -31,12 +31,10 @@ def g_test(xs, ys, clf, count=100, test_size=0.2, log=True):
         tr_ac += clf.score(X_train, y_train)
         ts_ac += clf.score(X_test, y_test)
         mal += np.sum(clf.predict(xs) == 1) / len(xs)
-        fem += np.sum(clf.predict(xs) == 0) / len(xs)
         loading(i + 1, count)
     if log:
         print(f"""
               male percentage = {mal * 100 / count:.2f}%
-              female percentage = {fem * 100 / count:.2f}%
               train accuracy = {tr_ac * 100 / count:.2f}%
               test accuracy = {ts_ac * 100 / count:.2f}%
               """)
