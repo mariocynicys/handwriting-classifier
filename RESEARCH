@@ -1,17 +1,17 @@
 Features:
   Textural:
-    - LBP (74%)
+    - LBP (76%)
     - GLCM (67%)
     - Gabor Filter (canceled)
     - AR Coefficients (canceled)
   Slant/Curvature:
-    - HoG (62%)
-    - Chain Code Based (69%):
-      - Distribution of Chain Codes
-      - Distribution of Chain Code Pairs
+    - HoG (63%)
+    - Chain Code Based:
+      - Distribution of Chain Codes (74%)
+      - Distribution of Chain Code Pairs (72%)
     - Distribution of Segment Slopes & Curvatures (66%)
-    - COLD (62%)
-    - Hinge (81%)
+    - COLD (80%)
+    - Hinge (88%)
     - oBIF (canceled)
   Fractal (canceled):
     - SFTA
@@ -22,7 +22,7 @@ Note: Many of the above features have higher potential when tuned correctly.
 
 Training (soon):
   - SVM
-  - ANN (with one hidden layer)
+  - ANN (10, 10)
   - RF
   - Others...
   - Ensemble Classifier (refer to: Improving handwriting based gender classification using ensemble classifiers)
