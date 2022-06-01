@@ -154,14 +154,12 @@ def hinge(image, n_angles=40, leg_len=25):
     return hist[np.triu_indices_from(hist, k=1)]
 
 def cold(image, approx_poly_factor=0.01, n_rho=7,
-         n_angles=12, ks=np.arange(3, 8), max_cnts=1000,
+         n_angles=12, ks=np.arange(3, 8),
          r_inner=5.0, r_outer=35.0):
     bin_size = 360 // n_angles
     n_bins = n_rho * n_angles
 
     contours = list(cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
-    np.random.shuffle(contours)
-    contours = contours[:max_cnts]
 
     rho_bins_edges = np.log10(np.linspace(r_inner, r_outer, n_rho))
     feature_vectors = np.zeros((len(ks), n_bins))
