@@ -72,8 +72,11 @@ def save_feature(feature_name: str, features):
     np.savetxt(meta(feature_name, 'cols_to_keep'), cols_to_keep)
     pickle.dump(scaler, open(meta(feature_name, 'scaler'), 'wb'))
 
-def pca(xs):
-    return PCA().fit_transform(xs)
+def pca(xs, feature_name):
+    pca = PCA()
+    pca.fit(xs)
+    pickle.dump(pca, open(meta(feature_name, 'pca'), 'wb'))
+    return pca.transform(xs)
 
 def combine_features(*features):
     all_features = features[0]

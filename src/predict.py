@@ -4,6 +4,7 @@ import glob
 import time
 import pickle
 import argparse
+import warnings
 
 from utils import *
 from processing import *
@@ -40,6 +41,7 @@ def main():
   results = []
   times = []
 
+  print("Using features:", selected_features)
   for test_image in test_images:
     image = imread(test_image, apply_tresh=False)
     start_time = time.time()
@@ -49,7 +51,7 @@ def main():
       features = {}
       for feature in selected_features:
         features[feature] = run_feature_extraction(image, feature)
-      prediction = clf.predict(features, True)
+      prediction = clf.predict(features, use_probs=True)
       results.append(str(round(prediction)))
     except Exception as e:
       print(e)
@@ -63,4 +65,5 @@ def main():
     times_file.write('\n'.join(times))
 
 if __name__ == '__main__':
+  warnings.filterwarnings("ignore")
   main()

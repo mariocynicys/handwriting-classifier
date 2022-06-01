@@ -199,10 +199,16 @@ def run_feature_extraction(image, feature):
     if feature in ['lbp', 'hog', 'glcm']:
         image = binarize(image)
     nonscaled_features = sys.modules[__name__].__dict__[feature](image)
+    # Apply PCA for features that we used PCA for while training.
+    if feature in ['hog']:
+        assert os.path.exists(meta(feature, 'pca')), f"PCA data is missing for feature {feature}!"
+        pca = pickle.load(open(meta(feature, 'pca'), 'rb'))
+        nonscaled_features = pca.transform([nonscaled_features])[0]
+    # All features were pruned and normalized during training.
     assert (os.path.exists(meta(feature, 'scaler'))
             and os.path.exists(meta(feature, 'cols_to_keep'))), "Assure that scalar"\
                 " and cols_to_keep data are present in the meta directory"\
-                    f" for the feature {feature}"
+                    f" for the feature {feature}!"
     scaler = pickle.load(open(meta(feature, 'scaler'), 'rb'))
     cols_to_keep = np.loadtxt(meta(feature, 'cols_to_keep')).astype(bool)
     # Remove known useless feature columns.
